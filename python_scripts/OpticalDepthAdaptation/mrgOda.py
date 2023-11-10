@@ -97,37 +97,38 @@ def GenerateTAPE28FMT (filename,header,waveV,mergedtransV,npts):
     fid.close()
 
 
-mprfdir=GetMolPrfDir('./')
-print("Inididual molecular profile components is in : ", mprfdir)
+if __name__ == "__main__":
+    mprfdir=GetMolPrfDir('./')
+    print("Inididual molecular profile components is in : ", mprfdir)
 
-lst=CompareTAPE5('./',mprfdir)
-print("lst=",lst)
-n=len(lst)
-#molTV_lst=[]
-molODV_lst=[]
-r_lst=[]
-for idx in range(n):
-    r=lst[idx]
-    if (r==0.0):
-        continue
-    molname=MOLECULES_FULL_LST[idx]
-#    print(idx,lst[idx],r,molname)
-#    waveV,tV,npts=GetMolTv    (mprfdir,molname)
-    waveV,odV,npts=GetMolOptDep(mprfdir,molname)
-#    molTV_lst.append(tV)
-    molODV_lst.append(odV)
-    r_lst.append(r)
+    lst=CompareTAPE5('./',mprfdir)
+    print("lst=",lst)
+    n=len(lst)
+    #molTV_lst=[]
+    molODV_lst=[]
+    r_lst=[]
+    for idx in range(n):
+        r=lst[idx]
+        if (r==0.0):
+            continue
+        molname=MOLECULES_FULL_LST[idx]
+    #    print(idx,lst[idx],r,molname)
+    #    waveV,tV,npts=GetMolTv    (mprfdir,molname)
+        waveV,odV,npts=GetMolOptDep(mprfdir,molname)
+    #    molTV_lst.append(tV)
+        molODV_lst.append(odV)
+        r_lst.append(r)
 
-#mergedtransV0   = MergeTransData(molTV_lst, r_lst,npts)
-mergedtransV  = MergeOpDepData(molODV_lst,r_lst,npts)
-#dump4plot("mrgd.dat",waveV,mergedtransV,npts)
-# Locate the TAPE28 file for ALL
-alldir=os.path.join(mprfdir,'ALL')
+    #mergedtransV0   = MergeTransData(molTV_lst, r_lst,npts)
+    mergedtransV  = MergeOpDepData(molODV_lst,r_lst,npts)
+    #dump4plot("mrgd.dat",waveV,mergedtransV,npts)
+    # Locate the TAPE28 file for ALL
+    alldir=os.path.join(mprfdir,'ALL')
 
-header=GetTAPE28Header(alldir)
-#for line in header:
-#    print(line)
-GenerateTAPE28FMT (TAPE28ODA_FILENAME,header,waveV,mergedtransV,npts)
+    header=GetTAPE28Header(alldir)
+    #for line in header:
+    #    print(line)
+    GenerateTAPE28FMT (TAPE28ODA_FILENAME,header,waveV,mergedtransV,npts)
 
-#waveV,tV,npts=ReadTAPE28('./')
-#dump4plot("TAPE28.dat",waveV,tV,npts)
+    #waveV,tV,npts=ReadTAPE28('./')
+    #dump4plot("TAPE28.dat",waveV,tV,npts)
