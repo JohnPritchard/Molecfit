@@ -1541,7 +1541,7 @@ cpl_array* mf_io_klim_from_odatable(int range) {
 }
 // -------------------------------------------------------------------
 
-void mf_io_oda_delete_tableDB() {
+void mf_io_oda_delete_tableDB(void) {
     const int FREE_ALL  =3;
     cpl_msg_info(cpl_func,"About to free OD Tables");
     mf_io_oda_tableDB(0, 0, NULL, 0, 0, FREE_ALL);
