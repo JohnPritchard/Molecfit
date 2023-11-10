@@ -9,7 +9,21 @@ import math
 import time
 import numpy as np
 import threading
-from multiprocessing import Process
+import dill
+#from multiprocessing import multiprocessing.Process
+import multiprocessing
+from datetime import datetime
+
+import logging
+logger=logging.getLogger()
+logger.handlers = []
+# see https://stackoverflow.com/questions/11581794/how-do-i-change-the-format-of-a-python-log-message-on-a-per-logger-basis
+logFMT = "%(asctime)s %(module)20s[%(process)5d] [%(levelname)s] %(message)s"
+ch = logging.StreamHandler()
+formatter = logging.Formatter(logFMT, "%Y-%m-%dT%H:%M:%S")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
 
 # GLOBAL VARIABLES:
 ODA_OPTION = os.getenv('ODA_OPTION')
@@ -377,3 +391,39 @@ def MakeMOLPRFSDir(dirname,tape5,tape28,tape3dir):
 # =========================================================
 #    END TAPE3_DIR PATH and Molecule Profile Data Path
 # =========================================================
+
+# ----------------------------------------------------------------------------
+def run_dill_encoded(payload):
+    i, fun, args = dill.loads(payload)
+    r=fun( args )
+    return i, r
+# ----------------------------------------------------------------------------
+def apply_async(pool, i, fun, args):
+    payload = dill.dumps((i, fun, args))
+    return pool.apply_async(run_dill_encoded, (payload,))
+# ----------------------------------------------------------------------------
+def doit_SysCall( mod, cmds ) :
+    sdt=datetime.now()
+    the_pool = multiprocessing.Pool(int(os.getenv('MF_LNFL_NUM_THREADS',8)))
+    jobs = []
+    for i,cmd in enumerate(cmds) :
+        #the_queue.put([i,[mod, a1, a2])
+        job = apply_async(the_pool, i, SysCall, (cmd,))
+        jobs.append(job)
+
+    retvals={}
+    for job in jobs:
+        retval = job.get()
+        print('\t', retval[0], retval[1])
+        i=retval[0]
+        r=retval[1]
+        retvals[i]=r
+
+    the_pool.terminate()
+    ddt=datetime.now()-sdt
+    t_elapsed_time=datetime.now()
+    t_elapsed_time=t_elapsed_time-t_elapsed_time
+
+    logger.info(f'Total equivalent elapsed time [{str(t_elapsed_time)}]')
+    logger.info(f'          Actual elapsed time [{str(ddt)}]')
+# ----------------------------------------------------------------------------
