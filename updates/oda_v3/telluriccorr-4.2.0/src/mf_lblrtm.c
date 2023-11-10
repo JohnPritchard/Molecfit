@@ -1347,29 +1347,31 @@ cpl_error_code mf_io_lblrtm_oda(mf_io_lnfl_config  *lnfl_config,
             cpl_free(tape3_dest);
             cpl_free(assoc_lnfl_dir);
             cpl_free(w_dir_range);
+        }/* end of range loop*/
 
-            /* Call LBLRTM executions for ths range definition
-             * Note: there may be more than one execution as mf_lblrtm_range_execution
-             * and the outputs will be in one or more TAPE28 file that need to be merged.
-             */
-            cpl_msg_info(cpl_func,"Attempt to call lblrtm from here");
-            int lblrtm_calls=0;
-            cpl_size run_execution=0;
-            const int ismolcol=1;
-            err=mf_lblrtm_range_execution(
-                                                lblrtm_config,
-                                                params,
-                                                ismolcol,
-                                                run_execution,
-                                                &lblrtm_calls,
-                                                atm,
-                                                NULL,
-                                                NULL,
-                                                NULL,
-                                                &oda_parameter);
-            cpl_msg_info(cpl_func,"Finished lblrtm with error %d",err);
+        /* Call LBLRTM executions for ths range definition
+            * Note: there may be more than one execution as mf_lblrtm_range_execution
+            * and the outputs will be in one or more TAPE28 file that need to be merged.
+            */
+        cpl_msg_info(cpl_func,"Attempt to call lblrtm from here");
+        int lblrtm_calls=0;
+        cpl_size run_execution=0;
+        const int ismolcol=1;
+        err=mf_lblrtm_range_execution(
+                                            lblrtm_config,
+                                            params,
+                                            ismolcol,
+                                            run_execution,
+                                            &lblrtm_calls,
+                                            atm,
+                                            NULL,
+                                            NULL,
+                                            NULL,
+                                            &oda_parameter);
+        cpl_msg_info(cpl_func,"Finished lblrtm with error %d",err);
 
-            /* Load the transmission data from LBLRTM's output TAPE28 files */
+        /* Load the transmission data from LBLRTM's output TAPE28 files */
+        for (int range = 0; range < nrange; range++) {
             char* range_dir=cpl_sprintf("%s/range_%d",lblrtm_wdir,range+1);
             cpl_bivector* bvec = mf_io_merge_wavefiles(range_dir,"TAPE28");
             cpl_free(range_dir);
