@@ -1,0 +1,117 @@
+                            ========
+                             NOTES:
+                            ========
+
+    ==================================
+      ODA V4 BASED ON ODA V3
+    ===================================
+JPr did the following:
+    -) Using the modified files of v3 (i.e. those in oda_v3/telluriccorr-4.2.0/src)
+    -) createed a patch file to modify the original telluriccor-4.2.0 to oda_v3
+    -) applied that patch to telluriccor-4.3.1 creating telluriccor-4.3.1-mod
+    -) hacked the resulting telluriccor-4.3.1-mod to make the modifications conditional on mf_io_lnfl_config:use_ODA=CPL_TRUE
+        so that the molecfit_calctrans and (I hope) molecfit_correct recipes, will work correctly.
+    -) I then copied those modified files from telluriccor-4.3.1-mod --> oda_v4/telluriccorr-4.3.1/src & oda_v4/molecfit-4.3.2/src
+
+    ==================================
+      ODA V3 BASED ON HYBRID VERSION
+    ===================================
+
+AIM:
+    1)
+    To Generate the profiles of molecules with unit abundancies as an independant step called
+    dierctly after lnfl calls and have the optical depth tables loaded before the first
+    psuedo lblrtm call is made.
+    2)
+    Have step sizes chosen by lblrtm and interpolate all od profiles onto same axis prior to
+    storing in the optical detpth table database. This should remove the need for a seperate
+    lblrtm call using all molecules to determine a universal step size which in turn removes
+    the need for the extra call of lnfl using all molecules. Hopefully reducing the total
+    lnfl call time.
+    3)
+    Remove the HYBRID=CPL_TRUE hard coding
+
+To build:
+make all
+make updates UPDATES=oda_v3 rebuild
+make python_scripts
+setenv ODA_OPTION ODA
+
+NOTE: python script lnflOda updated to run lnfl executions in parallel
+
+FURHER NOTE: More changes than those listed below have been made.
+One specific hack: cpl_boolen HYBRID has been hard coded as CPL_TRUE to use the HYBRID method
+
+
+------
+STEP1:
+------
+
+Refactored
+    mf_io_read_lblrtm_and_update_spec (...*filename*..)
+to
+    cpl_bivector* mf_io_read_lblrtm_spec (filename)
+    mf_io_read_lblrtm_and_update_spec (...*bivector*..)
+
+    so that a bivector is generated from the TAPE28 filename
+    and mf_io_read_lblrtm_and_update_spec processin the
+    data from the bivector and not the TAPE28 file itsel
+
+Changes in:
+    mf_io.c
+    mf_io.h
+    mf_lblrtm.c
+
+------
+STEP2:
+------
+Create a
+    cpl_bivector* mf_io_mergeODTables(range) (Initiially return NULL)
+Changes in:
+    mf_io.c
+    mf_io.h
+Modify mf_lblrtm.c from:
+    if (bvec==NULL) bvec=mf_io_read_lblrtm_spec (filename)
+to:
+    bvec=mf_io_mergeODTables(range)
+    if (bvec==NULL) bvec=mf_io_read_lblrtm_spec (filename)
+
+====================
+NEW ROUTINES in mf_io
+====================
+cpl_matrix*   mf_io_oda_tableDB(int range, int molecule, double* vec, int nrows, int nmols, int option);
+
+The Tables DataBase. Stored as a static variable of a list of cpl_matrix. The list is per range and each
+cpl_matrix has n molecules + 1 for columns and n wave number points for rows. Column 0 is the wavenumber
+values and columns 1 to n moleculs are the optical depths for that molecule.
+This function is generic, option decides if dimension initialising, writing or reading any details.
+This routine is private and called only by the following wrappers:
+void          mf_io_oda_init_tableDB(int range, int nmols, int nrows);
+                Set the dimensions of the table (per range)
+void          mf_io_oda_set_tableDB(int range, int molecule, double *vec, int nrows);
+                Set the specific column of the cpl_matrix for this range
+cpl_matrix*   mf_io_oda_get_tableDB(int range);
+                Get the cpl_matrix (pointer) for this range
+void          mf_io_oda_delete_tableDB(void);
+                Free allocated space of this database (this should make valgrind happy)
+
+HIGHER LEVEL ODA Table API:
+void          mf_io_load_oda_table(int range, const char* lblrtm_out_filename);
+                Load ODA Table data from a TAPE28 file
+double**      mf_io_read_oda_table(int range);
+                NO LONGER USED
+cpl_bivector* mf_io_read_lblrtm_spec(const char *spectrum_filename);
+                Refcatored from the original  mf_io_read_lblrtm_and_update_spec to extract the spectra and populate a bivector
+                as a seperate step. This bivector is then passed to  mf_io_read_lblrtm_and_update_spec (instead of the filename)
+                which allows the bivector to be generated from mf_io_mergeODTables (see below)
+
+cpl_bivector* mf_io_mergeODTables(const int range, cpl_vector* mol_abuns,const char* lblrtm_out_filename);
+                Given the abundancies, calculate a transmission bivector by merging the Optical Depth values
+                in the stored table
+
+cpl_vector*   mf_io_molecule_abundancies(mf_parameters* params, cpl_array* fitpar);
+                Handy wrapper to get the abundencie values from the params and fitpar
+
+cpl_array*    mf_io_klim_from_odatable(int range);
+                klim array is normally extracted from TAPE28, this routine extacts it from
+                the OdaTables.
