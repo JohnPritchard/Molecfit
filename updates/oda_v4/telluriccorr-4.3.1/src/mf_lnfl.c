@@ -224,7 +224,7 @@ cpl_error_code mf_lnfl(
         if (wn_start[range] != 0. || wn_end[range] != 0.) {
 
             /* Update LNFL global time execution and show results info */
-            cpl_msg_info(cpl_func, "(mf_lnfl      ) Configuring LNFL   for %.3f - %.3f µm (Range: %3d)", 1.e4 / wn_end[range], 1.e4 / wn_start[range], range + 1);
+            cpl_msg_info(cpl_func, "(mf_lnfl      ) Configuring LNFL   for %.3f - %.3f micron (Range: %3d)", 1.e4 / wn_end[range], 1.e4 / wn_start[range], range + 1);
 
             /* Create a symbolic link to TAPE1 (initial AER file) and write the TAPE5 input file by LNFL execution */
             err += mf_io_write_lnfl_configuration(params->config->directories.telluriccorr_data_path, w_dir_range[range],

@@ -870,7 +870,7 @@ static cpl_error_code mf_lblrtm_range_execution(
                         if (err != CPL_ERROR_NONE) {
 
                             cpl_error_set_message(cpl_func, err,
-                                                    "LBLRTM failed for wavelength interval: %5.2f-%5.2f [µm]",
+                                                    "LBLRTM failed for wavelength interval: %5.2f-%5.2f [micron]",
                                                     MF_CONV_K_LAM / wn1[range], MF_CONV_K_LAM / wn2[range]);
                         } else if (spec_out!=NULL) {
 
