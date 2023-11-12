@@ -1030,6 +1030,7 @@ static cpl_table * mf_lblrtm_range_combined_and_convolved(
                     /* Rebin spectrum */
                     char *spectrum_filename = cpl_sprintf("%s/%s_%lld", w_dir_range, lblrtm_out_filename, wavenumber + 1);
                     cpl_bivector* bvec;
+                    bvec=NULL;
                     if (lnfl_config->use_ODA) {
                         bvec=mf_io_mergeODTables(range,mol_abuns,spectrum_filename);
                         if (bvec!=NULL && USE_ODATABLE==CPL_FALSE) {

@@ -88,14 +88,6 @@ typedef struct {
     char * lbl_molecs;
 } mf_io_oda_parameters;
 
-/* Exposed structure : Initially default values for to be modify by the user */
-/*typedef struct {
-/*  char                       *line_db;               /*  */
-/*  int                        line_db_fmt;            /*  */
-/*  cpl_boolean                use_ODA;                /*  */
-/*} mf_io_lnfl_config;
-
-
 /******************************************************************************/
 /* mf_lblrtm: CONFIGURATION                                                   */
 /******************************************************************************/

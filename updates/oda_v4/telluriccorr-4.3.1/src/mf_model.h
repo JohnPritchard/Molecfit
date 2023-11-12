@@ -104,8 +104,7 @@ MF_EXPORT mf_model_results * mf_model(
 
 /* Deallocate results structure */
 MF_EXPORT void mf_model_results_delete(
-    mf_model_results         *results,               /* Model result structure                                                   */
-    mf_io_lnfl_config        *lnfl_config);
+    mf_model_results         *results);               /* Model result structure                                                   */
 
 
 CPL_END_DECLS

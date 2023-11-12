@@ -186,8 +186,16 @@ mf_model_results * mf_model(
 
     /* Check configuration structures */
     cpl_error_code err = CPL_ERROR_NONE;
-    err += mf_lblrtm_config_check(    config->lblrtm    );
+
     config->lnfl->use_ODA = CPL_TRUE;
+    char* oda_option=getenv("MF_ODA_DISABLE");
+    if (oda_option!=NULL) {
+        if (strncasecmp( oda_option, "true", 4 ) == 0) {
+            config->lnfl->use_ODA = CPL_FALSE;
+        }
+    }
+
+    err += mf_lblrtm_config_check(    config->lblrtm    );
     err += mf_lnfl_config_check(      config->lnfl      );
     err += mf_parameters_config_check(config->parameters, config->lnfl);
     cpl_error_ensure(!err,
@@ -430,7 +438,7 @@ mf_model_results * mf_model(
     if (!err) {
         return results;
     } else {
-        mf_model_results_delete(results, config->lnfl);
+        mf_model_results_delete(results);
         return NULL;
     }
 }
@@ -449,15 +457,21 @@ mf_model_results * mf_model(
  */
 /* ---------------------------------------------------------------------------*/
 void mf_model_results_delete(
-    mf_model_results         *results,
-    mf_io_lnfl_config        *lnfl_config)
+    mf_model_results         *results)
 {
   if (results) {
 
       /* Remove telluriccorr temporary files */
       if (results->tmp_folder) {
-        if ((lnfl_config!=NULL) && (!lnfl_config->use_ODA)) {
-            mf_io_rm_rf(results->tmp_folder, 10);
+        cpl_boolean rm_tmp_dir = CPL_TRUE;
+        char* oda_option=getenv("MF_ODA_RM_TMP_DIR");
+        if (oda_option!=NULL) {
+            if (strncasecmp( oda_option, "false", 5 ) == 0) {
+                rm_tmp_dir=CPL_FALSE;
+            }
+            if (rm_tmp_dir) {
+                mf_io_rm_rf(results->tmp_folder, 10);
+            }
         }
         cpl_free(results->tmp_folder);
       }
