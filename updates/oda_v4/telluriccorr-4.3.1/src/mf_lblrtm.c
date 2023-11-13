@@ -384,7 +384,9 @@ cpl_error_code mf_lblrtm(
              }
          }
 
-         if (mpfit_calls != 1 && all_in_tolerance) cpl_msg_info(cpl_func, "(mf_lblrtm    ) ALL FITTING !");
+        if (mf_io_use_debug()) {
+            if (mpfit_calls != 1 && all_in_tolerance) cpl_msg_info(cpl_func, "(mf_lblrtm    ) ALL FITTING !");
+        }
     }
 
     /* Run LBLRTM in any case if first or last function call */
@@ -668,10 +670,14 @@ static cpl_error_code mf_lblrtm_range_execution(
 
                 /* In case the wavenumber range is too large for LBLRTM, break it up
                  * into smaller subranges */
-                cpl_msg_info(cpl_func,"MNBXWaveNumber nu1=%f nu2=%f",wn1[range],wn2[range]);
+                if (mf_io_use_debug()) {
+                    cpl_msg_info(cpl_func,"MNBXWaveNumber nu1=%f nu2=%f",wn1[range],wn2[range]);
+                }
                 cpl_vector* end_points=wavenumber_subranges(wn1[range],wn2[range]);
                 int npts=cpl_vector_get_size(end_points);
-                cpl_msg_info(cpl_func,"MNBXWaveNumber Subranges = %d",npts);
+                if (mf_io_use_debug()) {
+                    cpl_msg_info(cpl_func,"MNBXWaveNumber Subranges = %d",npts);
+                }
                 cpl_vector_delete(end_points);
 
                 double     vbar        = (minc_config + maxc_config) / 2.;
@@ -710,7 +716,9 @@ static cpl_error_code mf_lblrtm_range_execution(
                         if (delta > MF_LBLRTM_DELTA_MAX) delta = MF_LBLRTM_DELTA_MAX;
                         if (delta < MF_LBLRTM_DELTA_MIN) delta = MF_LBLRTM_DELTA_MIN;
                         //delta=delta/40;
-                        cpl_msg_info(cpl_func,"MARBEL-> [%f,%f],[%f,%f],wn_jmax=%lld,delat=%f",wn1[range],wn2[range],min_wn_local,max_wn_local,wn_jmax,delta);
+                        if (mf_io_use_debug()) {
+                            cpl_msg_info(cpl_func,"MARBEL-> [%f,%f],[%f,%f],wn_jmax=%lld,delat=%f",wn1[range],wn2[range],min_wn_local,max_wn_local,wn_jmax,delta);
+                        }
 
                         min_wn_local = CPL_MAX(max_wn_local - delta, wn1[range]);
 
@@ -798,7 +806,9 @@ static cpl_error_code mf_lblrtm_range_execution(
 
         if (!err) {
 
-            cpl_msg_info(cpl_func, "(mf_lblrtm    ) Executing external calls to the LBLRTM binary ...");
+            if (mf_io_use_debug()) {
+                cpl_msg_info(cpl_func, "(mf_lblrtm    ) Executing external calls to the LBLRTM binary ...");
+            }
 
             char *lblrtm_syscall;
             if (params->config->inputs.silent_external_bins) {
