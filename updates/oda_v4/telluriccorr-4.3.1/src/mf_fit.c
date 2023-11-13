@@ -304,8 +304,8 @@ cpl_error_code mf_fit(
   double te        = cpl_test_get_walltime();
   double runtime   = te - ts;
   params->timers.time_fit += runtime;
-  cpl_msg_info(cpl_func, "(mf_fit       ) RUN MF_FIT --> Time execution = %.2f s. (TOTAL_TIME_FIT = %.2f min., TIME_EXE = %.2f min.)",
-               runtime, params->timers.time_fit / 60., (te - params->timers.time_start) / 60.);
+  cpl_msg_info(cpl_func, "(mf_fit       ) RUN MF_FIT --> Time execution = %.2f s. (TOTAL_TIME_FIT = %.2f min., TIME_EXE = %.2f min., nfev = %3d)",
+               runtime, params->timers.time_fit / 60., (te - params->timers.time_start) / 60., mpfit_results.nfev);
 
   /* Check status */
   cpl_error_code err = CPL_ERROR_NONE;
