@@ -869,6 +869,7 @@ static mf_fit_results * mf_model_batch(
   /* Correct run-dependent parameters of results structure */
   fit_results->niter    = niter;
   fit_results->orignorm = orignorm;
+  fit_results->bestnorm = bestnorm;
 
   /* Cleanup */
   cpl_array_delete(fit_molec_0);
