@@ -235,7 +235,9 @@ cpl_error_code mf_fit(
   results->xerror = cpl_calloc(fitpar.n, sizeof(double));
 
   /* Reset number of fitting calls */
-  cpl_msg_info(cpl_func, "(mf_fit       ) Fitting function calls and fit parameter changes -> Call par newval reldev");
+  if (mf_io_use_debug()) {
+    cpl_msg_info(cpl_func, "(mf_fit       ) Fitting function calls and fit parameter changes -> Call par newval reldev");
+  }
 
   /* Start timer */
   double ts = cpl_test_get_walltime();
@@ -290,6 +292,7 @@ cpl_error_code mf_fit(
 
   /* Save results */
   results->orignorm    = mpfit_results.orignorm;
+  results->bestnorm    = mpfit_results.bestnorm;
   results->niter       = mpfit_results.niter;
   results->mpfit_calls = mpfit_results.nfev;
   results->status      = mpfit_results.status;

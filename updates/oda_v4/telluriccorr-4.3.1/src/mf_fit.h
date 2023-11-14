@@ -72,6 +72,7 @@ typedef struct {
   int    mpfit_calls;   /* Number of MPFIT fitting function evaluation calls                                       */
   int    lblrtm_calls;  /* Number of LBLRTM calls (wavenumber-restricted sub-spectra are not counted individually) */
   double orignorm;      /* Starting value of chi^2                                                                 */
+  double bestnorm;      /* Ending value of chi^2                                                                 */
   int    niter;         /* Number of iterations                                                                    */
   int    status;        /* Fitting status code                                                                     */
   int    npar;          /* Total number of parameters                                                              */

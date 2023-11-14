@@ -373,7 +373,7 @@ mf_model_results * mf_model(
                 cpl_msg_info(cpl_func, "(mf_model     ) time_lblrtm/calls  : %.2lf s",   ratio_lblrtm_call            );
 
                 cpl_msg_info(cpl_func, "(mf_model     ) orignorm           : %.3e",      fit_results->orignorm        );
-                cpl_msg_info(cpl_func, "(mf_model     ) bestnorm           : %.3e",      params->config->internal.chi2);
+                cpl_msg_info(cpl_func, "(mf_model     ) bestnorm           : %.3e",      fit_results->bestnorm        );
                 cpl_msg_info(cpl_func, "(mf_model     ) npar               : %d",        fit_results->npar            );
                 cpl_msg_info(cpl_func, "(mf_model     ) npix               : %d",        fit_results->nfunc           );
                 cpl_msg_info(cpl_func, "(mf_model     ) niter              : %d",        fit_results->niter           );
@@ -469,9 +469,9 @@ void mf_model_results_delete(
             if (strncasecmp( oda_option, "false", 5 ) == 0) {
                 rm_tmp_dir=CPL_FALSE;
             }
-            if (rm_tmp_dir) {
-                mf_io_rm_rf(results->tmp_folder, 10);
-            }
+        }
+        if (rm_tmp_dir) {
+            mf_io_rm_rf(results->tmp_folder, 10);
         }
         cpl_free(results->tmp_folder);
       }
@@ -597,6 +597,7 @@ static mf_fit_results * mf_model_batch(
   cpl_array *fit_wlc_0, *fit_wlc_1, *fit_res_0, *fit_res_1;
   int i = 0, runcheck[5] = {1, 1, 1, 1, 1}, niter = 0;
   double orignorm = 0.;
+  double bestnorm = 0.;
 
   /* Get size of fit flag arrays */
   cpl_size nmolec = cpl_table_get_nrow(params->molectab);
@@ -718,8 +719,9 @@ static mf_fit_results * mf_model_batch(
           double runtime = te - ts;
           cpl_msg_info(cpl_func, "(mf_model     ) RUN END - 1st: mf_fit(...) --> Time execution = %.2f s. (status=%d)", runtime, status);
 
-          niter    += fit_results->niter;
-          orignorm  = fit_results->orignorm;
+          niter       += fit_results->niter;
+          orignorm     = fit_results->orignorm;
+          bestnorm     = fit_results->bestnorm;
       }
   }
 
@@ -745,6 +747,7 @@ static mf_fit_results * mf_model_batch(
           if (runcheck[1] == 0) {
               orignorm = fit_results->orignorm;
           }
+          bestnorm  = fit_results->bestnorm;
 
           niter += fit_results->niter;
       }
@@ -772,6 +775,7 @@ static mf_fit_results * mf_model_batch(
           if (runcheck[1] == 0) {
               orignorm = fit_results->orignorm;
           }
+          bestnorm  = fit_results->bestnorm;
 
           niter += fit_results->niter;
       }
@@ -799,6 +803,7 @@ static mf_fit_results * mf_model_batch(
           if (runcheck[1] == 0 && runcheck[2] == 0 && runcheck[3] == 0) {
               orignorm = fit_results->orignorm;
           }
+          bestnorm = fit_results->bestnorm;
 
           niter += fit_results->niter;
       }
@@ -824,6 +829,7 @@ static mf_fit_results * mf_model_batch(
           cpl_msg_info(cpl_func, "(mf_model     ) RUN END - 5th: mf_fit(...) --> Time execution = %.2f s. (status=%d)", runtime, status);
 
           niter += fit_results->niter;
+          bestnorm = fit_results->bestnorm;
       }
   }
 
@@ -847,6 +853,7 @@ static mf_fit_results * mf_model_batch(
           cpl_msg_info(cpl_func, "(mf_model     ) RUN END - 6th: mf_fit(...) --> Time execution = %.2f s. (status=%d)", runtime, status);
 
           niter += fit_results->niter;
+          bestnorm = fit_results->bestnorm;
       }
   }
 
