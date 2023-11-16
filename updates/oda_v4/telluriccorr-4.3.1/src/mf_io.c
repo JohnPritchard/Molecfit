@@ -1312,7 +1312,7 @@ cpl_error_code mf_io_read_lblrtm_and_update_spec(
     mf_io_lnfl_config        *lnfl_config)
 {
 
-    FILE *stream;
+    FILE *stream=NULL;
     if (!lnfl_config->use_ODA) {
         /* Check file existence */
         cpl_msg_info(cpl_func, "(mf_io        ) Load ASCII file: %s (mf_lblrtm_rebin_spectrum)", spectrum_filename);
@@ -1380,10 +1380,11 @@ cpl_error_code mf_io_read_lblrtm_and_update_spec(
     double      flux   =  0.;
     int         ncol   =  2;
 
-    double* xv;
-    double* yv;
-    int bivector_size;
-    int idx;
+    double* xv=NULL;
+    double* yv=NULL;
+    int bivector_size=0;
+    int idx=0;
+
     if (lnfl_config->use_ODA) {
         xv=cpl_bivector_get_x_data(bvec);
         yv=cpl_bivector_get_y_data(bvec);
@@ -1412,8 +1413,13 @@ cpl_error_code mf_io_read_lblrtm_and_update_spec(
             num   = 0;
         }
 
-        if (!lnfl_config->use_ODA) {
-            while (empty == CPL_FALSE && (ncol = fscanf(stream, "%le %le", &k, &flux)) == 2) {
+        if (lnfl_config->use_ODA) {
+            while (empty == CPL_FALSE && idx<bivector_size) {
+                //double xval=xv[idx];
+                //double yval=yv[idx++];
+                k   =xv[idx];
+                flux=yv[idx++];
+                //cpl_msg_info(cpl_func,"i=%d,%f=%f,%f=%f",idx-1,xval,k,yval,flux);
                 lam = MF_CONV_K_LAM / k;
                 if (lam <= lmax0) {
                     if (lam > lmin) {
@@ -1426,12 +1432,7 @@ cpl_error_code mf_io_read_lblrtm_and_update_spec(
                 }
             }
         } else {
-            while (empty == CPL_FALSE && idx<bivector_size) {
-                //double xval=xv[idx];
-                //double yval=yv[idx++];
-                k   =xv[idx];
-                flux=yv[idx++];
-                //cpl_msg_info(cpl_func,"i=%d,%f=%f,%f=%f",idx-1,xval,k,yval,flux);
+            while (empty == CPL_FALSE && (ncol = fscanf(stream, "%le %le", &k, &flux)) == 2) {
                 lam = MF_CONV_K_LAM / k;
                 if (lam <= lmax0) {
                     if (lam > lmin) {
